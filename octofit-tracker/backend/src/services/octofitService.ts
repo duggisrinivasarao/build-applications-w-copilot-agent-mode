@@ -96,11 +96,66 @@ export async function createTeam(input: unknown) {
 }
 
 export async function getLeaderboard() {
-  return [];
+  const [teams, activityTotals] = await Promise.all([
+    Team.find().select('_id name').lean(),
+    Activity.aggregate<{ _id: mongoose.Types.ObjectId; totalPoints: number }>([
+      { $group: { _id: '$team', totalPoints: { $sum: '$points' } } },
+    ]),
+  ]);
+
+  const totalsByTeam = new Map(
+    activityTotals.map(({ _id, totalPoints }) => [_id.toString(), totalPoints]),
+  );
+
+  return teams
+    .map((team) => ({
+      teamName: team.name,
+      totalPoints: totalsByTeam.get(team._id.toString()) ?? 0,
+    }))
+    .sort((left, right) =>
+      right.totalPoints - left.totalPoints
+      || left.teamName.localeCompare(right.teamName),
+    )
+    .map((entry, index) => ({ ...entry, rank: index + 1 }));
 }
 
-export async function suggestWorkouts(_userEmail: string) {
-  return Workout.find().limit(1).lean();
+export async function suggestWorkouts(userEmail: string) {
+  if (typeof userEmail !== 'string' || userEmail.trim().length === 0) {
+    throw Object.assign(new Error('User email is required'), { status: 400 });
+  }
+
+  const user = await User.findOne({ email: userEmail.trim().toLowerCase() }).lean();
+  if (!user) {
+    throw Object.assign(new Error('User was not found'), { status: 404 });
+  }
+
+  const recentActivity = await Activity.findOne({ user: user._id })
+    .sort({ occurredAt: -1 })
+    .lean();
+
+  let focus = user.fitnessGoal;
+  let reason = `Matches your ${user.fitnessGoal} fitness goal`;
+
+  if (recentActivity) {
+    const activityType = recentActivity.type.toLowerCase();
+    if (activityType === 'run' || activityType === 'cycle' || activityType === 'walk') {
+      focus = 'endurance';
+      reason = `Based on your recent ${recentActivity.type} activity`;
+    } else if (activityType === 'strength') {
+      focus = 'strength';
+      reason = 'Based on your recent strength activity';
+    }
+  }
+
+  const matchingWorkout = await Workout.findOne({ focus }).lean();
+  if (!matchingWorkout) {
+    return [];
+  }
+
+  return [{
+    ...matchingWorkout,
+    reason,
+  }];
 }
 
 export { User };
