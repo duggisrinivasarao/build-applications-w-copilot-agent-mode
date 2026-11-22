@@ -10,3 +10,15 @@ Remember, it's self-paced so feel free to take a break! ☕️
 
 [![](https://img.shields.io/badge/Go%20to%20Exercise-%E2%86%92-1f883d?style=for-the-badge&logo=github&labelColor=197935)](https://github.com/duggisrinivasarao/build-applications-w-copilot-agent-mode/issues/1)
 
+[![Copy Exercise](https://img.shields.io/badge/Copy_Exercise-Template-1f883d?style=for-the-badge&logo=github)](https://github.com/new?template_owner=skills&template_name=build-applications-w-copilot-agent-mode)
+
+<img src=".github/images/octofit-tracker.png" alt="OctoFit Tracker" />
+
+## Welcome
+
+Welcome to the OctoFit Tracker exercise. Build the data, API, and presentation tiers using the instructions and contracts in this repository.
+
+## Having trouble? 🤷
+
+Review the step instructions, rerun the relevant test command, and use the exercise workflows to check your progress.
+
