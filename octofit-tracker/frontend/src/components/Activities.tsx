@@ -1,4 +1,15 @@
 import { CapabilityCard } from './CapabilityCard.js';
 export default function Activities() {
-  return <CapabilityCard title="Activities" description="Track student activity minutes and points." />;
+  return (
+    <CapabilityCard
+      title="Activities"
+      description="Track student activity minutes and points."
+      path="/api/activities"
+      responseKey="activities"
+      emptyText="No activities"
+      renderItem={(activity) => (
+        <span>{String(activity.type)} - {String(activity.minutes)} minutes, {String(activity.points)} points</span>
+      )}
+    />
+  );
 }
